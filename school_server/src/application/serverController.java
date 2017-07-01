@@ -19,37 +19,54 @@ import javafx.stage.Stage;
 import server.SchoolServer;
 import ui.UserWindow;
 
+/**
+ * The Class serverController - Server Controller
+ */
 public class serverController {
 	String port;
 	SchoolServer server;
 
+	/** The resources . */
     @FXML
     private ResourceBundle resources;
 
+	/** The location . */
     @FXML
     private URL location;
 
+	/** The connect button . */
     @FXML
     private Button connectBtn;
 
+	/** The port label. */
     @FXML
     private Label portLbl;
 
+	/** The school Server Label . */
     @FXML
     private Label schoolServerLbl;
 
+	/** The status label no.1. */
     @FXML
     private Label statusLbl1;
 
+	/** The discon button . */
     @FXML
     private Button disconBtn;
 
+	/** The status label no.2 . */
     @FXML
     private Label statusLbl2;
 
+	/** The port text . */
     @FXML
     private TextField portTxt;
 
+    /**
+     * connect.
+     *
+     * @param event - connect
+     */
     @FXML
     void connect(ActionEvent event) {
     	port=portTxt.getText();
@@ -76,10 +93,13 @@ public class serverController {
 				e.printStackTrace();
 			}
     	}
-    	//Main.stack.push("server");
-    	//UserWindow.createUserWindow((Stage)statusLbl2.getScene().getWindow(), "server", getClass());
     }
 
+    /**
+     * disconnect.
+     *
+     * @param event - enter disconnect
+     */
     @FXML
     void disconnect(ActionEvent event) {
     	try {
@@ -94,6 +114,9 @@ public class serverController {
     	disconBtn.setDisable(true);
     }
 
+    /**
+     * Initialize.
+     */
     @FXML
     void initialize() {
         assert connectBtn != null : "fx:id=\"connectBtn\" was not injected: check your FXML file 'server.fxml'.";
@@ -103,6 +126,5 @@ public class serverController {
         assert disconBtn != null : "fx:id=\"disconBtn\" was not injected: check your FXML file 'server.fxml'.";
         assert statusLbl2 != null : "fx:id=\"statusLbl2\" was not injected: check your FXML file 'server.fxml'.";
         assert portTxt != null : "fx:id=\"portTxt\" was not injected: check your FXML file 'server.fxml'.";
-
     }
 }
