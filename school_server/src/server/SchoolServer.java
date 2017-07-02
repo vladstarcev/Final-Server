@@ -1,6 +1,10 @@
 package server;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.sql.Connection;
@@ -16,12 +20,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import ocsf.*;
 
 public class SchoolServer extends AbstractServer {
 	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
 	private static final File ASSIGNMENTS_DIR = new File("assignments");
 	private static final File SOLUTIONS_DIR = new File("solutions");
+
 
 	//final public static int DEFAULT_PORT = 5556;
 	ArrayList<String> arr;
@@ -39,14 +46,12 @@ public class SchoolServer extends AbstractServer {
 	}
 
 	private void addAssignment(ArrayList<?> msg, ConnectionToClient client) {
-		System.out.println("Adding assignment");
 		LocalDateTime dueDate = (LocalDateTime) msg.get(1);
 		String courseID = (String) msg.get(2);
 		byte[] fileContents = (byte[]) msg.get(3);
 		String originalFileName = (String) msg.get(4);
 		String assignmentName = (String) msg.get(5);
 
-		System.out.println("All arguments OK");
 		int dotIndex = originalFileName.lastIndexOf('.');
 		String extension = originalFileName.substring(dotIndex);
 
@@ -55,10 +60,8 @@ public class SchoolServer extends AbstractServer {
 		File output = new File(ASSIGNMENTS_DIR, assignmentFileName);
 
 		try {
-			System.out.println("Writing file");
 			Files.write(output.toPath(), fileContents);
 		} catch (IOException e) {
-			System.out.println("Add assignment failed (can't write file)");
 			e.printStackTrace();
 
 			return;
@@ -75,6 +78,47 @@ public class SchoolServer extends AbstractServer {
 				assignmentFileName);
 
 		System.out.println("OK!");
+	}
+	
+	private void downloadAssignment(ArrayList<?> msg, ConnectionToClient client) throws IOException {
+		try {
+			String filter = "";
+			String fileName = "check.docx";
+			File output = new File(ASSIGNMENTS_DIR, fileName);
+			FileInputStream fis = null;
+			fis = new FileInputStream(output);
+			byte fileContents[] = new byte[(int)output.length()];
+			fis.read(fileContents);
+			
+			// Creates file chooser.
+			FileChooser chooser = new FileChooser();
+			chooser.setTitle("Save File");
+			// sets file extension filter . This extension stored in the
+			// database.
+			FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
+					filter + " File (*." +filter+ ")",
+					"*." + filter + "");
+			// Adding the filter.
+			chooser.getExtensionFilters().add(extFilter);
+			// Starts the saving stage.
+			File dest = chooser.showSaveDialog(new Stage());
+			// If the user canceled.
+			if (dest != null) {
+				FileOutputStream fout;
+				fout = new FileOutputStream(dest);
+				// Converting the array of bytes into the file.
+				BufferedOutputStream bout = new BufferedOutputStream(fout);
+				bout.write(fileContents);
+				bout.flush();
+				bout.close();
+				fout.close();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	private void addSolution(ArrayList<?> msg, ConnectionToClient client) {
@@ -135,6 +179,8 @@ public class SchoolServer extends AbstractServer {
 
 			return;
 		}
+		
+		
 		if (rawMessage.get(0).equals("add assignment solution")) {
 			// TODO remove this try-catch
 			try {
@@ -145,6 +191,18 @@ public class SchoolServer extends AbstractServer {
 			}
 
 			return;
+		}
+		
+		if (rawMessage.get(0).equals("get assignment")) {
+			try {
+				downloadAssignment(rawMessage, client);
+			} catch (RuntimeException e) {
+				System.out.println("Something went wrong");
+				e.printStackTrace(System.out);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 		System.out.println("query handler");
