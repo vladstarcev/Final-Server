@@ -24,6 +24,9 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import ocsf.*;
 
+/**
+ * The Class schoolServer - this class is school Server
+ */
 public class SchoolServer extends AbstractServer {
 	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
 	private static final File ASSIGNMENTS_DIR = new File("assignments");
@@ -45,6 +48,11 @@ public class SchoolServer extends AbstractServer {
 		}
 	}
 
+	/**
+	 * add assignment
+	 * @param msg - message
+	 * @param client
+	 */
 	private void addAssignment(ArrayList<?> msg, ConnectionToClient client) {
 		LocalDateTime dueDate = (LocalDateTime) msg.get(1);
 		String courseID = (String) msg.get(2);
@@ -80,6 +88,11 @@ public class SchoolServer extends AbstractServer {
 		System.out.println("OK!");
 	}
 	
+	/**
+	 * download assignment
+	 * @param msg - message
+	 * @param client
+	 */
 	private void downloadAssignment(ArrayList<?> msg, ConnectionToClient client) throws IOException {
 		try {
 			String filter = "";
@@ -121,6 +134,11 @@ public class SchoolServer extends AbstractServer {
 
 	}
 
+	/**
+	 * add solution 
+	 * @param msg - message
+	 * @param client
+	 */
 	private void addSolution(ArrayList<?> msg, ConnectionToClient client) {
 		System.out.println("Adding solution");
 		String assignmentName = (String) msg.get(1);
@@ -153,6 +171,11 @@ public class SchoolServer extends AbstractServer {
 		System.out.println("OK!");
 	}
 
+	/**
+	 * handle message from client 
+	 * @param msg - message
+	 * @param client
+	 */
 	public void handleMessageFromClient(Object msg, ConnectionToClient client) {
 		/************************************************ Checks *************************************************/
 		System.out.println("Request received from " + client);
@@ -176,10 +199,8 @@ public class SchoolServer extends AbstractServer {
 				System.out.println("Something went wrong");
 				e.printStackTrace(System.out);
 			}
-
 			return;
 		}
-		
 		
 		if (rawMessage.get(0).equals("add assignment solution")) {
 			// TODO remove this try-catch
@@ -189,7 +210,6 @@ public class SchoolServer extends AbstractServer {
 				System.out.println("Something went wrong");
 				e.printStackTrace(System.out);
 			}
-
 			return;
 		}
 		
@@ -204,8 +224,8 @@ public class SchoolServer extends AbstractServer {
 				e.printStackTrace();
 			}
 		}
-
 		System.out.println("query handler");
+		
 		/************************************************
 		 * Query handler
 		 ******************************************/
@@ -233,6 +253,7 @@ public class SchoolServer extends AbstractServer {
 		}
 
 		System.out.println("sending back response " + response);
+		
 		/************************************************
 		 * Send to Client
 		 ******************************************/
@@ -246,14 +267,25 @@ public class SchoolServer extends AbstractServer {
 		}
 	}
 
+	/**
+	 * server started 
+	 */
 	protected void serverStarted() {
 		System.out.println("Server listening for connections on port " + getPort());
 	}
 
+	/**
+	 * server stopped 
+	 */
 	protected void serverStopped() {
 		System.out.println("Server has stopped listening for connections.");
 	}
 
+	/**
+	 * execute insert 
+	 * @param sql
+	 * @param arguments
+	 */
 	private void executeInsert(String sql, String... arguments) {
 		try {
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
@@ -278,6 +310,10 @@ public class SchoolServer extends AbstractServer {
 
 	}
 
+	/**
+	 * select field 
+	 * @param arr
+	 */
 	protected Object selectField(ArrayList<String> arr) {
 		Statement stmt;
 		String sql = "";
@@ -306,7 +342,6 @@ public class SchoolServer extends AbstractServer {
 						sql += arr.get(i) + "=\"" + arr.get(i + 1) + "\" ";
 						if (i + 2 < arr.size())
 							sql += "AND ";
-
 					}
 				}
 				sql += ";";
@@ -333,6 +368,10 @@ public class SchoolServer extends AbstractServer {
 		return answer;
 	}
 
+	/**
+	 * server select 
+	 * @param arr
+	 */
 	protected Object select(ArrayList<String> arr) {
 		Statement stmt;
 		String sql = "";
@@ -387,6 +426,10 @@ public class SchoolServer extends AbstractServer {
 		return answer;
 	}
 
+	/**
+	 * histogram1 
+	 * @param arr
+	 */
 	protected Object histogram1(ArrayList<String> arr) {
 		Statement stmt;
 		String sql = "";
@@ -448,6 +491,10 @@ public class SchoolServer extends AbstractServer {
 		return answer;
 	}
 
+	/**
+	 * histogram 2
+	 * @param arr
+	 */
 	protected Object histogram2(ArrayList<String> arr) {
 		Statement stmt;
 		String sql = "";
@@ -501,6 +548,10 @@ public class SchoolServer extends AbstractServer {
 		return answer;
 	}
 
+	/**
+	 * server histogram 3 
+	 * @param arr 
+	 */
 	protected Object histogram3(ArrayList<String> arr) {
 		Statement stmt;
 		String sql = "";
@@ -570,6 +621,10 @@ public class SchoolServer extends AbstractServer {
 		return answer;
 	}
 
+	/**
+	 * update 
+	 * @param arr
+	 */
 	protected Object update(ArrayList<String> arr) {
 		Statement stmt;
 		String sql = "";
@@ -627,6 +682,10 @@ public class SchoolServer extends AbstractServer {
 		return answer;
 	}
 
+	/**
+	 * delete 
+	 * @param arr
+	 */
 	protected Object delete(ArrayList<String> arr) {
 		Statement stmt;
 		String sql = "";
@@ -665,6 +724,10 @@ public class SchoolServer extends AbstractServer {
 		return answer;
 	}
 
+	/**
+	 * insert
+	 * @param arr 
+	 */
 	protected Object insert(ArrayList<String> arr) {
 		Statement stmt;
 		String sql = "";
@@ -718,6 +781,10 @@ public class SchoolServer extends AbstractServer {
 		return answer;
 	}
 
+	/**
+	 * client connected
+	 * @param client
+	 */
 	protected void clientConnected(ConnectionToClient client) {
 		System.out.println("Client " + client.getId() + " connected, " + getNumberOfClients() + " clients are online");
 	}
