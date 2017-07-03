@@ -118,7 +118,39 @@ public class SchoolServer extends AbstractServer {
 	 * @param msg - message
 	 * @param client
 	 */
-	private void downloadAssignment(ArrayList<?> msg, ConnectionToClient client) throws IOException {
+	
+	private ArrayList<Object> downloadAssignment(ArrayList<?> msg) throws IOException {
+		String filename = (String)msg.get(1);
+		System.out.println(filename);
+		ArrayList<String> extention = new ArrayList<>();
+		extention.add("farmat");
+		extention.add("assignment");
+		extention.add("assignmentName");
+		extention.add(filename);
+		ArrayList<String> ans = (ArrayList<String>) selectField(extention);
+		String ext = ans.get(0).split("=")[1];
+		filename+="."+ext;
+		System.out.println(filename);
+		File assFile = new File(filename);
+		byte bytesarr[]=new byte [1000000];
+		int bytesread = 0;
+		try {
+			
+			FileInputStream fin=new FileInputStream("assignments/"+assFile);
+			bytesread = fin.read(bytesarr);
+			
+		} catch (FileNotFoundException e) {e.printStackTrace();} 
+		  catch (Exception e) {e.printStackTrace();}
+		
+		ArrayList<Object> toClient = new ArrayList<>();
+		toClient.add("get assignment");
+		toClient.add(filename);
+		toClient.add(bytesarr);
+		toClient.add(bytesread);
+		return toClient;
+		
+	}
+	/*private void downloadAssignment(ArrayList<?> msg, ConnectionToClient client) throws IOException {
 		try {
 			String filter = "";
 			String fileName = "check.docx";
@@ -157,7 +189,7 @@ public class SchoolServer extends AbstractServer {
 			e.printStackTrace();
 		}
 
-	}
+	}*/
 
 	/**
 	 * add solution 
@@ -243,7 +275,8 @@ public class SchoolServer extends AbstractServer {
 		
 		if (rawMessage.get(0).equals("get assignment")) {
 			try {
-				downloadAssignment(rawMessage, client);
+				ArrayList<Object> ans = downloadAssignment(rawMessage);
+				client.sendToClient(ans);
 			} catch (RuntimeException e) {
 				System.out.println("Something went wrong");
 				e.printStackTrace(System.out);
