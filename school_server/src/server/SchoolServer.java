@@ -53,7 +53,32 @@ public class SchoolServer extends AbstractServer {
 	 * @param msg - message
 	 * @param client
 	 */
-	private void addAssignment(ArrayList<?> msg, ConnectionToClient client) {
+	
+	private String addAssignment(ArrayList<?> msg) {
+		
+		
+		String extention = (String)msg.get(6);
+		String filename = "assignments/"+(String)msg.get(1)+"."+extention; 
+		String courseId = (String)msg.get(5);
+		byte bytesarr[] = (byte[])msg.get(2);
+		int bytesread = (int)msg.get(3);
+		try {
+			FileOutputStream fos=new FileOutputStream(new File(filename),true);
+			fos.write(bytesarr,0,bytesread);
+			fos.close();
+		} catch (FileNotFoundException e) {e.printStackTrace();} catch (IOException e) {e.printStackTrace();}
+		
+		LocalDateTime dueDate = (LocalDateTime) msg.get(4);
+		executeInsert("INSERT INTO assignment (assignmentName, dueDate, farmat, courseID) VALUES (?, ?, ?, ?)",
+				(String)msg.get(1), dueDate.format(FORMATTER), extention, courseId);
+
+		executeInsert("INSERT INTO assignment_in_course (courseID, assignmentName) VALUES (?, ?)", courseId,
+				(String)msg.get(1));
+		
+		return "success";
+		
+	}
+	/*private void addAssignment(ArrayList<?> msg, ConnectionToClient client) {
 		LocalDateTime dueDate = (LocalDateTime) msg.get(1);
 		String courseID = (String) msg.get(2);
 		byte[] fileContents = (byte[]) msg.get(3);
@@ -86,7 +111,7 @@ public class SchoolServer extends AbstractServer {
 				assignmentFileName);
 
 		System.out.println("OK!");
-	}
+	}*/
 	
 	/**
 	 * download assignment
@@ -194,12 +219,15 @@ public class SchoolServer extends AbstractServer {
 		if (rawMessage.get(0).equals("add assignment")) {
 			// TODO remove this try-catch
 			try {
-				addAssignment(rawMessage, client);
+				
+				String answer = addAssignment(rawMessage);
+				client.sendToClient(answer);
 			} catch (RuntimeException e) {
 				System.out.println("Something went wrong");
 				e.printStackTrace(System.out);
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			return;
 		}
 		
 		if (rawMessage.get(0).equals("add assignment solution")) {
